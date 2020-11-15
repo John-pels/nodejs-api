@@ -2,26 +2,39 @@ const express = require('express')
 const app = express()
 const port = 3000
 
-let bodyParser = require('body-parser');
-app.use(bodyParser.json());
+let bodyParser = require('body-parser')
+app.use(bodyParser.json())
 
-let products = [];
 
-app.post('/products', function (req, res) {
-  // implement
-});
 
-app.put('/products', function (req, res) {
-  // implement
-});
+let products = []
 
-app.delete('/products/:id', function (req, res) {
-  // implement
-});
+app.route('/products')
+  .get((req, res) => {
+  res.json(products)
+  })
+  .post((req,res) => {
+    const newProduct = { ...req.body, id: products.length + 1 }
+    products = [...products, newProduct]
+    res.json(newProduct)
+  })
+  .put((req, res) => {
+    let updateProduct;
+    products = products.map(p => {
+      if (p.id === req.body.id) {
+        updateProduct = { ...p, ...req.body }
+        return updateProduct
+      }
 
-app.get('/products', (req, res) => {
-  // implement
-})
+      return p
+    })
 
-app.listen(port, () => console.log(`Example app listening on port ${port}!`))
-  
+    res.json(updateProduct)
+  })
+  .delete((req, res) => {
+    const deletedProduct = products.find(p => p.id === +req.body.id)
+    products = products.filter(p => p.id !== +req.body.id)
+    res.json(deletedProduct)
+  })
+
+  app.listen(port,() => console.log(`Example app listening on port ${port}!`))
